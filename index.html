@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
+	<title>Numbers in English</title>
+	<link rel="icon" href="https://cdn-icons-png.freepik.com/256/2106/2106609.png" type="image/icon type">
+</head>
+
+<body>
+	<div class="mainArea">
+		<p id="mainText">WHAT IS THIS NUMBER?</p>
+		<div class="ballsArea">
+			<div class="numberBall" id="tensBall"></div>
+			<div class="numberBall" id="unitBall"></div>
+		</div>
+		<button id="mainButton" onclick="handleClick()">START</button>
+	</div>
+	<div class="footer">
+		<div id="RangeSlider" class="range-slider">
+			<div>
+				<div class="range-slider-val-left"></div>
+				<div class="range-slider-val-right"></div>
+				<div class="range-slider-val-range"></div>
+
+				<span class="range-slider-handle range-slider-handle-left"></span>
+				<span class="range-slider-handle range-slider-handle-right"></span>
+
+				<div class="range-slider-tooltip range-slider-tooltip-left">
+					<span class="range-slider-tooltip-text"></span>
+				</div>
+
+				<div class="range-slider-tooltip range-slider-tooltip-right">
+					<span class="range-slider-tooltip-text"></span>
+				</div>
+			</div>
+
+			<input type="range" class="range-slider-input-left" tabindex="0" max="99" min="0" step="1">
+			<input type="range" class="range-slider-input-right" tabindex="0" max="99" min="0" step="1">
+		</div>
+	</div>
+</body>
+
+<script>
+	const numberToWords = {
+		0: 'ZERO', 1: 'ONE', 2: 'TWO', 3: 'THREE', 4: 'FOUR', 5: 'FIVE', 6: 'SIX', 7: 'SEVEN', 8: 'EIGHT', 9: 'NINE',
+		10: 'TEN', 11: 'ELEVEN', 12: 'TWELVE', 13: 'THIRTEEN', 14: 'FOURTEEN', 15: 'FIFTEEN', 16: 'SIXTEEN',
+		17: 'SEVENTEEN', 18: 'EIGHTEEN', 19: 'NINETEEN', 20: 'TWENTY', 21: 'TWENTY-ONE', 22: 'TWENTY-TWO',
+		23: 'TWENTY-THREE', 24: 'TWENTY-FOUR', 25: 'TWENTY-FIVE', 26: 'TWENTY-SIX', 27: 'TWENTY-SEVEN',
+		28: 'TWENTY-EIGHT', 29: 'TWENTY-NINE', 30: 'THIRTY', 31: 'THIRTY-ONE', 32: 'THIRTY-TWO', 33: 'THIRTY-THREE',
+		34: 'THIRTY-FOUR', 35: 'THIRTY-FIVE', 36: 'THIRTY-SIX', 37: 'THIRTY-SEVEN', 38: 'THIRTY-EIGHT', 39: 'THIRTY-NINE',
+		40: 'FORTY', 41: 'FORTY-ONE', 42: 'FORTY-TWO', 43: 'FORTY-THREE', 44: 'FORTY-FOUR', 45: 'FORTY-FIVE',
+		46: 'FORTY-SIX', 47: 'FORTY-SEVEN', 48: 'FORTY-EIGHT', 49: 'FORTY-NINE', 50: 'FIFTY', 51: 'FIFTY-ONE',
+		52: 'FIFTY-TWO', 53: 'FIFTY-THREE', 54: 'FIFTY-FOUR', 55: 'FIFTY-FIVE', 56: 'FIFTY-SIX', 57: 'FIFTY-SEVEN',
+		58: 'FIFTY-EIGHT', 59: 'FIFTY-NINE', 60: 'SIXTY', 61: 'SIXTY-ONE', 62: 'SIXTY-TWO', 63: 'SIXTY-THREE',
+		64: 'SIXTY-FOUR', 65: 'SIXTY-FIVE', 66: 'SIXTY-SIX', 67: 'SIXTY-SEVEN', 68: 'SIXTY-EIGHT', 69: 'SIXTY-NINE',
+		70: 'SEVENTY', 71: 'SEVENTY-ONE', 72: 'SEVENTY-TWO', 73: 'SEVENTY-THREE', 74: 'SEVENTY-FOUR', 75: 'SEVENTY-FIVE',
+		76: 'SEVENTY-SIX', 77: 'SEVENTY-SEVEN', 78: 'SEVENTY-EIGHT', 79: 'SEVENTY-NINE', 80: 'EIGHTY', 81: 'EIGHTY-ONE',
+		82: 'EIGHTY-TWO', 83: 'EIGHTY-THREE', 84: 'EIGHTY-FOUR', 85: 'EIGHTY-FIVE', 86: 'EIGHTY-SIX', 87: 'EIGHTY-SEVEN',
+		88: 'EIGHTY-EIGHT', 89: 'EIGHTY-NINE', 90: 'NINETY', 91: 'NINETY-ONE', 92: 'NINETY-TWO', 93: 'NINETY-THREE',
+		94: 'NINETY-FOUR', 95: 'NINETY-FIVE', 96: 'NINETY-SIX', 97: 'NINETY-SEVEN', 98: 'NINETY-EIGHT', 99: 'NINETY-NINE',
+		100: 'ONE HUNDRED'
+	};
+
+	/** Default config */
+	let rangeSlider_min = 0;
+	let rangeSlider_max = 50;
+
+	document.querySelector('#RangeSlider .range-slider-val-left').style.width = `${rangeSlider_min + (100 - rangeSlider_max)}%`;
+	document.querySelector('#RangeSlider .range-slider-val-right').style.width = `${rangeSlider_min + (100 - rangeSlider_max)}%`;
+
+	document.querySelector('#RangeSlider .range-slider-val-range').style.left = `${rangeSlider_min}%`;
+	document.querySelector('#RangeSlider .range-slider-val-range').style.right = `${(100 - rangeSlider_max)}%`;
+
+	document.querySelector('#RangeSlider .range-slider-handle-left').style.left = `${rangeSlider_min}%`;
+	document.querySelector('#RangeSlider .range-slider-handle-right').style.left = `${rangeSlider_max}%`;
+
+	document.querySelector('#RangeSlider .range-slider-tooltip-left').style.left = `${rangeSlider_min}%`;
+	document.querySelector('#RangeSlider .range-slider-tooltip-right').style.left = `${rangeSlider_max}%`;
+
+	document.querySelector('#RangeSlider .range-slider-tooltip-left .range-slider-tooltip-text').innerText = rangeSlider_min;
+	document.querySelector('#RangeSlider .range-slider-tooltip-right .range-slider-tooltip-text').innerText = rangeSlider_max;
+
+	document.querySelector('#RangeSlider .range-slider-input-left').value = rangeSlider_min;
+	document.querySelector('#RangeSlider .range-slider-input-left').addEventListener('input', e => {
+		e.target.value = Math.min(e.target.value, e.target.parentNode.childNodes[5].value - 1);
+		var value = (100 / (parseInt(e.target.max) - parseInt(e.target.min))) * parseInt(e.target.value) - (100 / (parseInt(e.target.max) - parseInt(e.target.min))) * parseInt(e.target.min);
+
+		var children = e.target.parentNode.childNodes[1].childNodes;
+		children[1].style.width = `${value}%`;
+		children[5].style.left = `${value}%`;
+		children[7].style.left = `${value}%`;
+		children[11].style.left = `${value}%`;
+
+		children[11].childNodes[1].innerHTML = e.target.value;
+		rangeSlider_min = parseInt(e.target.value);
+	});
+
+	document.querySelector('#RangeSlider .range-slider-input-right').value = rangeSlider_max;
+	document.querySelector('#RangeSlider .range-slider-input-right').addEventListener('input', e => {
+		e.target.value = Math.max(e.target.value, e.target.parentNode.childNodes[3].value - (-1));
+		var value = (100 / (parseInt(e.target.max) - parseInt(e.target.min))) * parseInt(e.target.value) - (100 / (parseInt(e.target.max) - parseInt(e.target.min))) * parseInt(e.target.min);
+
+		var children = e.target.parentNode.childNodes[1].childNodes;
+		children[3].style.width = `${100 - value}%`;
+		children[5].style.right = `${100 - value}%`;
+		children[9].style.left = `${value}%`;
+		children[13].style.left = `${value}%`;
+
+		children[13].childNodes[1].innerHTML = e.target.value;
+		rangeSlider_max = parseInt(e.target.value);
+	});
+
+	function handleClick() {
+		if (document.getElementById('mainButton').innerText === "START") {
+			var newRandomNumber = generateNewNumbers(rangeSlider_min, rangeSlider_max);
+			document.getElementById('tensBall').innerText = newRandomNumber[0];
+			document.getElementById('unitBall').innerText = newRandomNumber[1];
+			document.getElementById('mainButton').innerText = "SHOW";
+		}
+		else if (document.getElementById('mainButton').innerText === "NEXT") {
+			document.getElementById('mainText').innerText = "WHAT IS THIS NUMBER?";
+			var newRandomNumber = generateNewNumbers(rangeSlider_min, rangeSlider_max);
+			document.getElementById('tensBall').innerText = newRandomNumber[0];
+			document.getElementById('unitBall').innerText = newRandomNumber[1];
+			document.getElementById('mainButton').innerText = "SHOW";
+		}
+		else if (document.getElementById('mainButton').innerText === "SHOW") {
+			document.getElementById('mainText').innerText = numberToWords[parseInt(document.getElementById('tensBall').innerText + document.getElementById('unitBall').innerText)];
+			document.getElementById('mainButton').innerText = "NEXT";
+		}
+	}
+
+	function generateNewNumbers(min, max) {
+		var difference = max - min + 1;
+		var randomDifference = Math.floor(Math.random() * difference);
+		var randomNumber = min + randomDifference;
+
+		if (randomNumber == 0) {
+			return [0, 0];
+		} else if (randomNumber < 10) {
+			return [0, randomNumber];
+		} else {
+			return Array.from(randomNumber.toString()).map(Number);
+		}
+	}
+</script>
+
+<style>
+	:root {
+		--ColorPrimaryDk: #89AD29;
+		--ColorPrimaryLt: #5EE3E8;
+	}
+
+	body {
+		font-family: "Caveat Brush", serif;
+		background-image: url('https://i.pinimg.com/originals/69/d5/5f/69d55f65ab05873a476c16fa24b4a8d4.jpg');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		margin: 0;
+		height: 100vh;
+	}
+
+	.mainArea {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.ballsArea {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.numberBall {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-style: solid;
+		width: 45vh;
+		height: 45vh;
+		background: linear-gradient(#89AD29, #5EE3E8);
+		border-radius: 100%;
+		border-width: 10px;
+		border-color: black;
+		text-align: center;
+		margin: 5vh;
+		font-size: 45vh;
+	}
+
+	#mainText {
+		font-size: 12vh;
+		font-weight: bold;
+		color: black;
+		margin: 0px;
+	}
+
+	#mainButton {
+		border-style: solid;
+		border-width: 10px;
+		border-color: black;
+		border-radius: 50%;
+		background: linear-gradient(#89AD29, #5EE3E8);
+		font-family: "Caveat Brush", serif;
+		font-size: 8vh;
+		font-weight: bold;
+		height: 15vh;
+		width: 45vh;
+		margin-bottom: 20px;
+	}
+
+	.range-slider {
+		--range-slider-common-height: 16px;
+		--range-slider-handle-width: 24px;
+		--range-slider-handle-height: 24px;
+
+		position: relative;
+		display: flex;
+		align-items: center;
+		width: 99%;
+		height: 100%;
+		margin-bottom: 50px;
+	}
+
+	.range-slider>div {
+		position: absolute;
+		display: flex;
+		align-items: center;
+		left: 13px;
+		right: 15px;
+		height: var(--range-slider-common-height);
+	}
+
+	.footer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 14vh;
+	}
+
+	.range-slider>div>.range-slider-val-left,
+	.range-slider>div>.range-slider-val-right,
+	.range-slider>div>.range-slider-val-range {
+		height: 10px;
+	}
+
+	.range-slider>div>.range-slider-val-left {
+		position: absolute;
+		left: 0;
+		border-radius: 10px;
+		background-color: #89AD29;
+		margin: 0 7px;
+	}
+
+	.range-slider>div>.range-slider-val-right {
+		position: absolute;
+		right: 0;
+		margin: 0 7px;
+		border-radius: 10px;
+		background-color: #89AD29;
+	}
+
+	.range-slider>div>.range-slider-val-range {
+		position: absolute;
+		left: 0;
+		top: -1px;
+		height: 16px;
+		border-radius: 14px;
+		background-color: var(--ColorPrimaryLt);
+	}
+
+	.range-slider>div>.range-slider-handle {
+		z-index: 1;
+		position: absolute;
+		top: -5px;
+		margin-left: -11px;
+		width: var(--range-slider-handle-width);
+		height: var(--range-slider-handle-height);
+		border-radius: 25%;
+		background-color: #fff;
+		text-align: left;
+
+		box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+		outline: none;
+		cursor: pointer;
+	}
+
+	div.range-slider>input[type="range"]::-ms-thumb {
+		width: var(--range-slider-handle-width);
+		height: var(--range-slider-handle-height);
+		border: 0 none;
+		border-radius: 0px;
+		background: red;
+
+		pointer-events: all;
+
+	}
+
+	div.range-slider>input[type="range"]::-moz-range-thumb {
+		width: var(--range-slider-handle-width);
+		height: var(--range-slider-handle-height);
+		border: 0 none;
+		border-radius: 0px;
+		background: red;
+
+		pointer-events: all;
+	}
+
+	div.range-slider>input[type="range"]::-webkit-slider-thumb {
+		width: var(--range-slider-handle-width);
+		height: var(--range-slider-handle-height);
+		border: 0 none;
+		border-radius: 0px;
+		background: red;
+
+		pointer-events: all;
+		-webkit-appearance: none;
+	}
+
+	div.range-slider>input[type="range"]::-ms-fill-lower {
+		background: transparent;
+		border: 0 none;
+	}
+
+	div.range-slider>input[type="range"]::-ms-fill-upper {
+		background: transparent;
+		border: 0 none;
+	}
+
+	.range-slider>input[type="range"] {
+		z-index: 1;
+		position: absolute;
+		width: 100%;
+		height: var(--range-slider-common-height);
+
+		opacity: 0;
+		filter: alpha(opacity=0);
+		cursor: pointer;
+		pointer-events: none;
+		-webkit-appearance: none;
+	}
+
+	div.range-slider>input[type="range"]::-ms-track {
+		background: transparent;
+		color: transparent;
+
+		-webkit-appearance: none;
+	}
+
+	div.range-slider>input[type="range"]::-moz-range-track {
+		background: transparent;
+		color: transparent;
+
+		-moz-appearance: none;
+	}
+
+	div.range-slider>input[type="range"]:focus::-webkit-slider-runnable-track {
+		background: transparent;
+		border: transparent;
+	}
+
+	div.range-slider>input[type="range"]:focus {
+		outline: none;
+	}
+
+	div.range-slider>input[type="range"]::-ms-tooltip {
+		display: none;
+	}
+
+	.range-slider>div>.range-slider-tooltip {
+		z-index: 2;
+		position: absolute;
+		top: -42px;
+		margin-left: -12px;
+		width: 28px;
+		height: 28px;
+		border-radius: 28px;
+		background-color: var(--ColorPrimaryLt);
+		color: #000;
+		text-align: center;
+
+		opacity: 0;
+	}
+
+	.range-slider>div>.range-slider-tooltip:after {
+		content: "";
+
+		position: absolute;
+		left: 0;
+		top: 19px;
+		border-left: 14px solid transparent;
+		border-right: 14px solid transparent;
+		border-top-width: 16px;
+		border-top-style: solid;
+		border-top-color: var(--ColorPrimaryLt);
+		border-radius: 16px;
+	}
+
+	.range-slider>div>.range-slider-tooltip>span {
+		font-size: 12px;
+		font-weight: 700;
+		line-height: 28px;
+	}
+
+	.range-slider:hover>div>.range-slider-tooltip {
+		opacity: 1;
+	}
+</style>
+</html>
